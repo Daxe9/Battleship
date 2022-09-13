@@ -1,18 +1,19 @@
 import {Server, Socket} from "socket.io"
 
-interface Coordinates {
+export interface Coordinates {
     x: number;
     y: number;
+    roomName: string;
 }
 
 export default class MatchHandler {
     public players: Array<Socket> = [];
     public server: Server;
     public roomName: string;
-    private turn: boolean = true;
+    public turn: boolean = true;
 
     get currentPlayer() {
-        return this.turn ? this.players[0].id : this.players[1].id;
+        return this.turn ? this.players[0] : this.players[1];
     }
 
     constructor(server: Server, socket1: Socket, socket2: Socket) {
@@ -21,19 +22,23 @@ export default class MatchHandler {
         socket1.join(this.roomName);
         socket2.join(this.roomName);
         this.server = server;
-        this.startGame();
+        this.startGame()
     }
 
 
     public startGame() {
-        this.server.to(this.roomName).emit("startGame");
+        this.server.to(this.roomName).emit("startGame", this.roomName);
     }
 
     public turnHandler(st: Socket) {
+        console.log("enter in turn handler")
         st.on("testing", (coordinates: Coordinates) => {
-            if (st.id === this.currentPlayer) {
+            console.log("received coordinates")
+            console.log(st.id);
+            if (st.id === this.currentPlayer.id) {
+                console.log("valid turn")
                 this.turn = !this.turn;
-                this.server.to(this.roomName).emit("testing", coordinates);
+                st.to(this.roomName).emit("testing", coordinates);
             }
         })
     }

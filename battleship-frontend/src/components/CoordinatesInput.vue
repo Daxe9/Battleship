@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {defineEmits, ref} from "vue";
+import {ref} from "vue";
 
 const emit = defineEmits(["coordinates"]);
 const x = ref<number>();
@@ -10,6 +10,9 @@ function submit() {
     if (!y.value) return;
 
     emit("coordinates", {x: x.value, y: y.value});
+    x.value = undefined;
+    y.value = undefined;
+
 }
 </script>
 <template>

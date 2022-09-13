@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import CoordinatesInput from "@/components/CoordinatesInput.vue";
 
-import {ref, watch} from "vue";
+import {reactive, ref, watch} from "vue";
 import {io, Socket} from "socket.io-client"
 
+interface Secret {
+    roomName: string
+    x: number,
+    y: number
+}
 
 const isUserConnected = ref<boolean>(false);
-
+const sendingCoordinates = ref<boolean>(false);
+const coordinates = reactive<Secret>({
+    roomName: "",
+    x: 0,
+    y: 0
+});
 const URL = "http://localhost:3000";
 
 function connectToServer(): void {
@@ -16,17 +26,23 @@ function connectToServer(): void {
         isUserConnected.value = true;
 
         socket.emit("searchForGame");
-        socket.on("startGame", (data: any) => {
+        socket.on("startGame", (data: string) => {
             console.log("Game started");
-        });
-        if (!isUserConnected.value) {
-            socket.disconnect()
-        }
+            coordinates.roomName = data;
+        })
+
+        socket.on("testing", (data: Secret) => {
+            console.log(data);
+        })
     });
 
-    watch(isUserConnected, (newValue) => {
-        if (!newValue) {
+    watch([isUserConnected, sendingCoordinates], ([newIsUserConnected, newSendingCoordinates]) => {
+        if (!newIsUserConnected) {
             socket.disconnect()
+        }
+        if (newSendingCoordinates) {
+            socket.emit("testing", JSON.parse(JSON.stringify(coordinates)));
+            sendingCoordinates.value = false;
         }
     })
 }
@@ -35,9 +51,12 @@ function disconnect(): void {
     isUserConnected.value = false;
 }
 
-function getCoordinates(coordinates: any): void {
-    console.log(coordinates);
+function getCoordinates(newCo: Secret): void {
+    coordinates.x = newCo.x;
+    coordinates.y = newCo.y;
+    sendingCoordinates.value = true;
 }
+
 </script>
 
 <template>
@@ -50,5 +69,4 @@ function getCoordinates(coordinates: any): void {
         </button>
         <CoordinatesInput @coordinates="getCoordinates"/>
     </div>
-
 </template>
