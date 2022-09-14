@@ -1,72 +1,39 @@
 <script setup lang="ts">
-import CoordinatesInput from "@/components/CoordinatesInput.vue";
+import {useRouter} from "vue-router";
+import GamingBoard from "@/components/GamingBoard.vue";
+import {ref} from "vue";
+import type {Cell} from "@/types/interfaces";
 
-import {reactive, ref, watch} from "vue";
-import {io, Socket} from "socket.io-client"
-
-interface Secret {
-    roomName: string
-    x: number,
-    y: number
-}
-
-const isUserConnected = ref<boolean>(false);
-const sendingCoordinates = ref<boolean>(false);
-const coordinates = reactive<Secret>({
-    roomName: "",
-    x: 0,
-    y: 0
-});
-const URL = "http://localhost:3000";
+const router = useRouter();
 
 function connectToServer(): void {
-    const socket: Socket = io(URL);
-    socket.on("connect", () => {
-        console.log("Connected to server");
-        isUserConnected.value = true;
-
-        socket.emit("searchForGame");
-        socket.on("startGame", (data: string) => {
-            console.log("Game started");
-            coordinates.roomName = data;
-        })
-
-        socket.on("testing", (data: Secret) => {
-            console.log(data);
-        })
-    });
-
-    watch([isUserConnected, sendingCoordinates], ([newIsUserConnected, newSendingCoordinates]) => {
-        if (!newIsUserConnected) {
-            socket.disconnect()
-        }
-        if (newSendingCoordinates) {
-            socket.emit("testing", JSON.parse(JSON.stringify(coordinates)));
-            sendingCoordinates.value = false;
-        }
-    })
+    router.push("/game");
 }
 
-function disconnect(): void {
-    isUserConnected.value = false;
+const gridWidth = 10;
+const matrix = ref<Array<Array<Cell>>>([])
+for (let i = 0; i < gridWidth; i++) {
+    const temp: Array<Cell> = [];
+    for (let j = 0; j < gridWidth; j++) {
+        temp.push({visible: false, isShip: false})
+    }
+    matrix.value.push(temp);
 }
 
-function getCoordinates(newCo: Secret): void {
-    coordinates.x = newCo.x;
-    coordinates.y = newCo.y;
-    sendingCoordinates.value = true;
-}
-
+matrix.value[2][3].visible = true;
+matrix.value[2][3].visible = true;
 </script>
 
 <template>
+    <p>red for ship got explored, orange for explored, green for unexplored</p>
+    <!--    <GamingBoard/>-->
+    <GamingBoard :matrix="matrix"/>
+
     <div>
-        <button @click="connectToServer" :disabled="isUserConnected">
+        <button @click="connectToServer">
             Search for game
         </button>
-        <button @click="disconnect" :disabled="!isUserConnected">
-            Disconnect
-        </button>
-        <CoordinatesInput @coordinates="getCoordinates"/>
+
+        <!--        <CoordinatesInput @coordinates="getCoordinates"/>-->
     </div>
 </template>

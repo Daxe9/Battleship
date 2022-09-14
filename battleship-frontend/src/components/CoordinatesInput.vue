@@ -6,8 +6,8 @@ const x = ref<number>();
 const y = ref<number>();
 
 function submit() {
-    if (!x.value) return;
-    if (!y.value) return;
+    if (x.value === undefined) return;
+    if (y.value === undefined) return;
 
     emit("coordinates", {x: x.value, y: y.value});
     x.value = undefined;
