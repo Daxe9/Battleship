@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {useRouter} from "vue-router";
-import GamingBoard from "@/components/GamingBoard.vue";
 import {ref} from "vue";
 import type {Cell} from "@/types/interfaces";
 
@@ -20,20 +19,12 @@ for (let i = 0; i < gridWidth; i++) {
     matrix.value.push(temp);
 }
 
-matrix.value[2][3].visible = true;
-matrix.value[2][3].visible = true;
 </script>
 
 <template>
-    <p>red for ship got explored, orange for explored, green for unexplored</p>
-    <!--    <GamingBoard/>-->
-    <GamingBoard :matrix="matrix"/>
-
     <div>
         <button @click="connectToServer">
             Search for game
         </button>
-
-        <!--        <CoordinatesInput @coordinates="getCoordinates"/>-->
     </div>
 </template>

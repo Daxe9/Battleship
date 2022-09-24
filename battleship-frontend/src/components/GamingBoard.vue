@@ -1,76 +1,71 @@
 <script lang="ts" setup>
-import type {Cell} from "@/types/interfaces";
-import {defineProps} from "vue";
+import type {Cell, Coordinates} from "@/types/interfaces";
+import Board from "@/components/Board.vue"
+import Rule from "@/components/Rule.vue"
 
-const props = defineProps<{
-    matrix: Array<Array<Cell>>
-}>()
+const emit = defineEmits(["submitDesign", "submitCoordinates"]);
 
-function test(x: number, y: number): void {
-    console.log(x, y);
-    document.getElementById(x + "_" + y)!.style.backgroundColor = "rgba(255, 0, 0, 0.03)";
-    document.getElementById(x + "_" + y)!.style.borderColor = "red";
+const props = defineProps({
+    title: String,
+    isDesign: Boolean,
+    designedBoard: {
+        required: true,
+        type: Array<Array<Cell>>
+    },
+    enemyBoard: {
+        required: true,
+        type: Array<Array<Cell>>
+    },
+    turn: {
+        required: true,
+        type: Boolean
+    }
+})
+
+function submitDesign(): void {
+    emit("submitDesign");
 }
 
-function checkCellColor(x: number, y: number): string {
-    console.log(x, y)
-    console.log(props.matrix[x][y].visible)
-    if (props.matrix[x][y].visible && props.matrix[x][y].isShip) {
-        return "red"
-    }
-    if (props.matrix[x][y].visible) {
-        return "orange"
-    } else {
-        return "green"
-    }
+function submitCoordinates(coordinates: Coordinates): void {
+    emit("submitCoordinates", coordinates);
 }
-
 </script>
 
 <template>
-    <div class="container">
-        <div v-for="(row, i) in matrix" :key="i" class="row">
-            <div v-for="(cell, j) in row" :key="j" class="cell" :class="checkCellColor(i, j)" :id="i + '_' + j"
-                 @click="test(i, j)">
-
-            </div>
+    <div>
+        <div class="title">
+            {{ props.title }}
         </div>
+        <div class="game-board">
+            <Board
+                :board="props.designedBoard"
+                :isDesign="isDesign"
+                :turn="false"/>
+            <Rule/>
+            <Board
+                :board="props.enemyBoard"
+                :isDesign="false"
+                :turn="turn"
+                @submitCoordinates="submitCoordinates"/>
+        </div>
+        <button v-if="isDesign" @click="submitDesign">
+            Submit the design
+        </button>
     </div>
 </template>
 
 
 <style scoped>
-.container {
+.game-board {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: center;
 }
 
-.row {
-    display: flex;
+.title {
+    font-size: 3vw;
 }
 
-.cell {
-    background-color: rgba(0, 255, 0, 0.03);
-    width: 6vh;
-    height: 6vh;
-    border: 2px solid green;
-    border-radius: 0.4em;
-    margin: 0.5px;
-}
 
-.red {
-    background-color: rgba(255, 0, 0, 0.03);
-    border-color: red;
-}
-
-.green {
-    background-color: rgba(0, 255, 0, 0.03);
-    border-color: green;
-}
-
-.orange {
-    background-color: rgba(255, 165, 0, 0.03);
-    border-color: orange;
-}
 </style>
