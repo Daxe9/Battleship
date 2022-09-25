@@ -5,28 +5,8 @@ import {useRouter} from "vue-router";
 import GamingBoard from "@/components/GamingBoard.vue";
 import type {Cell, Coordinates, Mark} from "@/types/interfaces";
 
-const sendingCoordinates = ref<boolean>(false);
 const router = useRouter();
-
 const gridWidth: number = 10;
-
-// our board
-const designedBoard = ref<Array<Array<Cell>>>([])
-// enemy board
-const enemyBoard = ref<Array<Array<Cell>>>([])
-
-const hasWinner = ref<boolean>(false);
-
-for (let i = 0; i < gridWidth; i++) {
-    const t1: Array<Cell> = [];
-    const t2: Array<Cell> = [];
-    for (let j = 0; j < gridWidth; j++) {
-        t1.push({visible: false, isShip: false})
-        t2.push({visible: false, isShip: false})
-    }
-    designedBoard.value.push(t1);
-    enemyBoard.value.push(t2)
-}
 const coordinatesMark = reactive<Mark>({
     roomName: "",
     args: {
@@ -40,6 +20,23 @@ const showText = ref<boolean>(false);
 const ourTurn = ref<boolean>(false);
 const URL = "http://localhost:3000";
 const socket: Socket = io(URL);
+
+
+// our board
+const designedBoard = ref<Array<Array<Cell>>>([])
+// enemy board
+const enemyBoard = ref<Array<Array<Cell>>>([])
+for (let i = 0; i < gridWidth; i++) {
+    const t1: Array<Cell> = [];
+    const t2: Array<Cell> = [];
+    for (let j = 0; j < gridWidth; j++) {
+        t1.push({visible: false, isShip: false})
+        t2.push({visible: false, isShip: false})
+    }
+    designedBoard.value.push(t1);
+    enemyBoard.value.push(t2)
+}
+
 socket.on("connect", () => {
     socket.emit("searchForGame");
     socket.on("startDesign", (data: string) => {
@@ -130,9 +127,6 @@ function getSubmittedCoordinates(coordinates: Coordinates): void {
     <h1 v-if="showText">
         {{ ourTurn ? "Your turn" : "Enemy's turn" }}
     </h1>
-    <!--    <button @click="test">-->
-    <!--        Hi-->
-    <!--    </button>-->
     <GamingBoard :designedBoard="designedBoard"
                  :enemyBoard="enemyBoard"
                  :title="isDesign ? 'Design your board please' : 'This is your board'"
@@ -145,7 +139,6 @@ function getSubmittedCoordinates(coordinates: Coordinates): void {
     <button @click="disconnect">
         Disconnect
     </button>
-    <!--    <CoordinatesInput @coordinates="getCoordinates"/>-->
 </template>
 
 <style scoped>

@@ -29,7 +29,6 @@ function changeCell(x: number, y: number) {
 }
 
 function checkCellColor(x: number, y: number): string {
-
     if (props.board[x][y].visible && props.board[x][y].isShip) {
         return "red"
     }
