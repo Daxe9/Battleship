@@ -4,6 +4,7 @@ import MatchHandler, {Coordinates} from "./classes/MatchHandler";
 import {Server as httpServer} from "http"
 import {Mark} from "./types/interfaces";
 
+
 export default class SocketManager {
     public ioServer: Server;
     private connectedPlayers: Array<Socket> = [];
@@ -19,9 +20,7 @@ export default class SocketManager {
             this.searchGame(socket);
             this.designBoard(socket);
             this.receiveCoordinates(socket);
-            socket.on("disconnect", () => {
-                console.log(`${socket.id} disconnected`);
-            });
+            this.disconnection(socket);
         })
     }
 
@@ -114,5 +113,18 @@ export default class SocketManager {
                 }
             }
         })
+    }
+
+    private disconnection(socket: Socket): void {
+        socket.on("disconnect", () => {
+            const socketId: string = socket.id;
+
+            // if one player disconnect then delete it from waiting list
+            for (let player of this.connectedPlayers) {
+                if (player.id === socketId) {
+                    this.connectedPlayers.splice(this.connectedPlayers.indexOf(player), 1);
+                }
+            }
+        });
     }
 }

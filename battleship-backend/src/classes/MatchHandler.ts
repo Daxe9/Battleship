@@ -46,7 +46,7 @@ export default class MatchHandler {
                     ships: 0
                 }
             });
-        this.roomName = (socket1.id + Math.floor(Math.random() * 9) + socket2.id).toString();
+        this.roomName = socket1.id + Math.floor(Math.random() * 9) + socket2.id;
         socket1.join(this.roomName);
         socket2.join(this.roomName);
         this.server = server;
@@ -54,8 +54,7 @@ export default class MatchHandler {
         this.readyPlayers = 0;
     }
 
-
-    public startDesign() {
+    private startDesign() {
         this.server.to(this.roomName).emit("startDesign", this.roomName);
     }
 

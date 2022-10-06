@@ -6,8 +6,10 @@ import Rule from "@/components/Rule.vue"
 const emit = defineEmits(["submitDesign", "submitCoordinates"]);
 
 const props = defineProps({
-    title: String,
-    isDesign: Boolean,
+    isDesign: {
+        required: true,
+        type: Boolean
+    },
     designedBoard: {
         required: true,
         type: Array<Array<Cell>>
@@ -33,20 +35,25 @@ function submitCoordinates(coordinates: Coordinates): void {
 
 <template>
     <div>
-        <div class="title">
-            {{ props.title }}
-        </div>
+        <h1 v-if="isDesign"> Design your board </h1>
         <div class="game-board">
-            <Board
-                :board="props.designedBoard"
-                :isDesign="isDesign"
-                :turn="false"/>
-            <Rule/>
-            <Board
-                :board="props.enemyBoard"
-                :isDesign="false"
-                :turn="turn"
-                @submitCoordinates="submitCoordinates"/>
+            <div>
+                <h2>This is your board</h2>
+                <Board
+                    :board="props.designedBoard"
+                    :isDesign="isDesign"
+                    :turn="false"/>
+            </div>
+            <Rule class="rule-description"/>
+            <div class="spacer"></div>
+            <div>
+                <h2>This is enemy's board</h2>
+                <Board
+                    :board="props.enemyBoard"
+                    :isDesign="false"
+                    :turn="turn"
+                    @submitCoordinates="submitCoordinates"/>
+            </div>
         </div>
         <button v-if="isDesign" @click="submitDesign">
             Submit the design
@@ -56,11 +63,31 @@ function submitCoordinates(coordinates: Coordinates): void {
 
 
 <style scoped>
+/* 743*/
 .game-board {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+.spacer {
+    display: none;
+}
+
+@media screen and (max-width: 743px) {
+    .game-board {
+        flex-direction: column;
+    }
+
+    .rule-description {
+        display: none;
+    }
+
+    .spacer {
+        display: block;
+        margin: 10px 0;
+    }
 }
 
 .title {

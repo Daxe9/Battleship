@@ -16,8 +16,9 @@ const coordinatesMark = reactive<Mark>({
 });
 const isDesign = ref<boolean>(false);
 const showText = ref<boolean>(false);
-
 const ourTurn = ref<boolean>(false);
+const shipSizes: Array<number> = [4, 3, 2, 1];
+const currentShipCoordinates: Array<Coordinates> = [];
 const URL = "http://localhost:3000";
 const socket: Socket = io(URL);
 
@@ -42,6 +43,7 @@ socket.on("connect", () => {
     socket.on("startDesign", (data: string) => {
         // design the board
         isDesign.value = true;
+
         coordinatesMark.roomName = data;
     })
 
@@ -112,7 +114,10 @@ function submitDesign(): void {
 }
 
 // get coordinates from click and send it to the server
+// TODO: control on ship size
 function getSubmittedCoordinates(coordinates: Coordinates): void {
+
+
     coordinatesMark.args.x = coordinates.x;
     coordinatesMark.args.y = coordinates.y;
     enemyBoard.value[coordinates.x][coordinates.y].visible = true;
@@ -120,6 +125,12 @@ function getSubmittedCoordinates(coordinates: Coordinates): void {
 
     socket.emit("coordinates", JSON.parse(JSON.stringify(coordinatesMark)));
 }
+
+// function sendCoordinates(coordinates: Array<Coordinates>): void {
+//     for (let coordinate of coordinates) {
+//         socket.emit("coordinates", JSON.parse(JSON.stringify(coordinates)));
+//     }
+// }
 
 </script>
 
@@ -129,7 +140,6 @@ function getSubmittedCoordinates(coordinates: Coordinates): void {
     </h1>
     <GamingBoard :designedBoard="designedBoard"
                  :enemyBoard="enemyBoard"
-                 :title="isDesign ? 'Design your board please' : 'This is your board'"
                  :isDesign="isDesign"
                  :turn="ourTurn"
                  @submitDesign="submitDesign"

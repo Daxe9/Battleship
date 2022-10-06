@@ -6,6 +6,7 @@ const app = express();
 const server = http.createServer(app);
 
 const socketManager: SocketManager = new SocketManager(server, {cors: {origin: "*"}});
+
 socketManager.listen()
 
 server.listen(3000, () => {
